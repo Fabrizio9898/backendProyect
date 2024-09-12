@@ -7,6 +7,3 @@ import { AuthService } from "./auth.service";
 })
 export class AuthModule{}
 
-export function HotObservable(){
-
-}
