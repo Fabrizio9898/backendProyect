@@ -1,11 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { UsersService } from "./users.services";
 import { UsersController } from "./users.controller";
-import { LoggerMiddlere } from "src/middlewares/logger.middleware";
+import { UserRepository } from "./users.repository";
+// import { LoggerMiddlere } from "src/middlewares/logger.middleware";
 
 @Module({
     controllers: [UsersController],
-    providers: [UsersService],
+    providers: [UsersService,UserRepository],
 })
 
 // export class UsersModule implements NestModule{
