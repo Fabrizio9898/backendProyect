@@ -8,15 +8,29 @@ export class UsersService{
 
     constructor(private userRepository:UserRepository){}
 
-    getUsers(){
-        return this.userRepository.getUsers()
+    async getUsers(page:number,limit:number){
+        const users=await this.userRepository.getUsers(page,limit)
+        return users;
     }
 
-    getUserById(id:number){
-        return this.userRepository.getById(id)
+    async getUserById(id:number){
+        const user=await this.userRepository.getById(id)
+        return user;
     }
 
-    createUser(user:userDto):Promise<IUser>{
-        return this.userRepository.createUser(user)
+    async createUser(user:userDto):Promise<number>{
+        const createdUserId = await this.userRepository.createUser(user);
+        return createdUserId;
     }
+
+    async updateUser(id:number,userData:userDto){
+        const updatedUserId=await this.userRepository.updateUser(id,userData)
+        return updatedUserId
+    }
+
+    async deleteUser(id:number){
+        const deletedUserId=await this.userRepository.deleteUser(id)
+        return deletedUserId
+    }
+
 }
