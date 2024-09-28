@@ -7,9 +7,10 @@ import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import typeOrmConfig from './config/typeorm.config'
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
-  imports: [UsersModule,ProductsModule,AuthModule,ConfigModule.forRoot({
+  imports: [UsersModule,ProductsModule,CategoriesModule,AuthModule,ConfigModule.forRoot({
     isGlobal:true,
   load:[typeOrmConfig]  }) ,TypeOrmModule.forRootAsync({
    inject:[ConfigService],

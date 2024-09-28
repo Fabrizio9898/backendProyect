@@ -1,17 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { ProductRepository } from "./products.repository";
-import { InjectRepository } from "@nestjs/typeorm";
-import Product from "src/entities/product.entity";
-import { Repository } from "typeorm";
+import { Injectable } from '@nestjs/common';
+import { ProductRepository } from './products.repository';
 
 @Injectable()
-export class ProductsService{
+export class ProductService {
+  constructor(private productRepository: ProductRepository) {}
 
-    constructor(
-        @InjectRepository(Product)
-        private productRepository:Repository<Product>){}
+  getProducts() {
+    return this.productRepository.getProducts();
+  }
 
-     getProducts(){
-        return  this.productRepository.find()
-    }
+  addProducts() {
+    return this.productRepository.addProducts();
+  }
 }

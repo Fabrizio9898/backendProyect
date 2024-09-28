@@ -1,38 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import IProducts from 'src/interfaces/products.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Product } from 'src/entities/product.entity';
+import { Category } from 'src/entities/categorie.entity';
+import { Repository } from 'typeorm';
+import * as data from '../../utils/data.json';
 
 @Injectable()
 export class ProductRepository {
-  private products: IProducts[] = [
-    {
-      id: 1,
+  constructor(
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+  ) {}
 
-      name: 'producto1',
+  async getProducts(): Promise<Product[]> {
+    return await this.productRepository.find({ relations: ['category'] });
+  }
 
-      description: 'descripcion',
-
-      price: 100,
-
-      stock: true,
-
-      imgUrl: '',
-    },
-    {
-      id: 2,
-
-      name: 'producto2',
-
-      description: 'descripcion2',
-
-      price: 200,
-
-      stock: true,
-
-      imgUrl: '',
-    },
-  ];
-
-  async getProducts() {
-    return this.products;
+  async addProducts() {
+    for (const item of data) {
+      const category = await this.categoryRepository.findOne({ where: { name: item.category } });
+      
+      if (category) {
+        await this.productRepository
+          .createQueryBuilder()
+          .insert()
+          .into(Product)
+          .values({
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            stock: item.stock,
+            category: category,
+          })
+          .orIgnore()
+          .execute();
+      }
+    }
+    return 'Productos agregados';
   }
 }
