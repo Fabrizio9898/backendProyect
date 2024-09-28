@@ -1,20 +1,17 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { CategoryService } from './categories.service';
-
 
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Post('seeder')
-  async seedCategories() {
-    const categories = [
-      "smartphone", 
-      "monitor", 
-      "keyboard", 
-      "mouse"
-    ];
-    await this.categoryService.addCategories(categories);
-    return { message: 'Categorías cargadas exitosamente.' };
+  @Get('seeder')
+  addCategories() {
+    return this.categoryService.addCategories();
+  }
+
+  @Get()
+  getCategories() {
+    return this.categoryService.getCategories();
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import Product from "./product.entity";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,5 +12,6 @@ export class Category {
     name: string;
 
     @OneToMany(() => Product, (product) => product.category)
+    @JoinColumn()
     products: Product[];
 }

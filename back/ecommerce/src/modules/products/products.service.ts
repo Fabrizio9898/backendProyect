@@ -11,7 +11,7 @@ export class ProductsService{
         @InjectRepository(Product)
         private productRepository:Repository<Product>){}
 
-    getProducts(){
+     getProducts(){
         return  this.productRepository.find()
     }
 }
