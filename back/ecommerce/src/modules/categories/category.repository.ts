@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entities/categorie.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as data from '../../utils/data.json';
 
 @Injectable()
@@ -16,15 +16,19 @@ export class CategoryRepository {
   }
 
   async addCategories() {
-    data?.map(async (cat) => {
+    // Usar un Set para obtener nombres únicos
+    const uniqueCategories = new Set(data.map(cat => cat.category));
+
+    for (const category of uniqueCategories) {
       await this.categoryRepository
         .createQueryBuilder()
         .insert()
         .into(Category)
-        .values({ name: cat.category })
-        .orIgnore()
+        .values({ name: category })
+        .orIgnore() // Ignora duplicados si ya existen
         .execute();
-    });
-    return 'Categorias agregadas';
+    }
+
+    return 'Categorías agregadas';
   }
 }

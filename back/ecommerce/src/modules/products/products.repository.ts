@@ -4,6 +4,7 @@ import { Product } from 'src/entities/product.entity';
 import { Category } from 'src/entities/categorie.entity';
 import { Repository } from 'typeorm';
 import * as data from '../../utils/data.json';
+import { CreateProductDto, UpdateProductDto } from 'src/dto/ProductDto';
 
 @Injectable()
 export class ProductRepository {
@@ -14,30 +15,49 @@ export class ProductRepository {
     private categoryRepository: Repository<Category>,
   ) {}
 
+  async addProducts() {
+
+    const categories=await this.categoryRepository.find()
+
+  data?.map(async (cat)=>{
+const category=categories.find((category)=>category.name==cat.name)
+const product=new Product()
+product.name=cat.name;
+product.description=cat.description;
+product.price=cat.price;
+product.stock=cat.stock;
+product.category=category;
+
+await this.productRepository
+.createQueryBuilder()
+.insert()
+.into(Product)
+.values(product)
+.orUpdate(['description','price','stock'],['name'])
+.execute()
+  });
+  return 'Productos agregados'
+  }
+
   async getProducts(): Promise<Product[]> {
     return await this.productRepository.find({ relations: ['category'] });
   }
 
-  async addProducts() {
-    for (const item of data) {
-      const category = await this.categoryRepository.findOne({ where: { name: item.category } });
-      
-      if (category) {
-        await this.productRepository
-          .createQueryBuilder()
-          .insert()
-          .into(Product)
-          .values({
-            name: item.name,
-            description: item.description,
-            price: item.price,
-            stock: item.stock,
-            category: category,
-          })
-          .orIgnore()
-          .execute();
-      }
-    }
-    return 'Productos agregados';
+  async createProduct(productData: CreateProductDto) {
+    const product = this.productRepository.create(productData);
+    return await this.productRepository.save(product);
+  }
+
+  async getProductById(id: string): Promise<Product> {
+    return await this.productRepository.findOne({ where: { id } });
+  }
+
+  async updateProduct(id: string, productData: UpdateProductDto) {
+    await this.productRepository.update(id, productData);
+    return this.getProductById(id);
+  }
+
+  async deleteProduct(id: string) {
+    return await this.productRepository.delete(id);
   }
 }

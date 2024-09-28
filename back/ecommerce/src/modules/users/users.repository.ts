@@ -83,8 +83,8 @@ export class UserRepository {
   //   return id;
   // }
 
-  // async findUserByEmail(email: string) {
-  //       const user = this.users.find(user => user.email === email);
-  //       return user;
-  // }
+   async findUserByEmail(email: string) {
+         const user = this.users.find(user => user.email === email);
+         return user;
+   }
 }
