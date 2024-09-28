@@ -14,10 +14,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.services';
 import userDto from 'src/dto/UseDto';
-import IUser from 'src/interfaces/user.interface';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { log } from 'console';
-import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -32,39 +29,39 @@ export class UsersController {
   }
 
 
-  @Post()
-  @HttpCode(201)
-  async createUser(@Body() userData: userDto): Promise<number> {
-    const userId=await this.userService.createUser(userData);
-    return userId;
-  }
+  // @Post()
+  // @HttpCode(201)
+  // async createUser(@Body() userData: userDto): Promise<number> {
+  //   const userId=await this.userService.createUser(userData);
+  //   return userId;
+  // }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard)
+  // @Delete(':id')
+  // @UseGuards(AuthGuard)
 
-  @HttpCode(200)
-  @UseGuards(AuthGuard)
-  async deleteUser(@Param('id') id: string) {
-    const deletedUserid=await this.userService.deleteUser(Number(id))
-    return deletedUserid;
-  }
+  // @HttpCode(200)
+  // @UseGuards(AuthGuard)
+  // async deleteUser(@Param('id') id: string) {
+  //   const deletedUserid=await this.userService.deleteUser(Number(id))
+  //   return deletedUserid;
+  // }
 
   @Get(':id')
   @UseGuards(AuthGuard)
 
   @HttpCode(200)
   async getUserById(@Param('id') id: string) {
-    const user=await this.userService.getUserById(Number(id));
+    const user=await this.userService.getUserById(id);
     return user;
   }
 
-  @Put(':id')
-  @UseGuards(AuthGuard)
+  // @Put(':id')
+  // @UseGuards(AuthGuard)
 
-  @HttpCode(200)
-  async updateUser(@Param('id') id:string,@Body() userData:userDto) {
-    const updatedUserId=await this.userService.updateUser(Number(id),userData)
-    return updatedUserId;
-  }
+  // @HttpCode(200)
+  // async updateUser(@Param('id') id:string,@Body() userData:userDto) {
+  //   const updatedUserId=await this.userService.updateUser(Number(id),userData)
+  //   return updatedUserId;
+  // }
 
 }

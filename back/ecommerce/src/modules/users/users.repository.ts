@@ -6,7 +6,7 @@ import userDto from 'src/dto/UseDto';
 export class UserRepository {
   private users: IUser[] = [
     {
-      id: 1,
+      id: '1',
       name: 'user1',
       email: 'hola@gmail.com',
       password: 'password1',
@@ -16,7 +16,7 @@ export class UserRepository {
       city: 'buenos aires',
     },
     {
-      id: 2,
+      id: '2',
       name: 'user2',
       email: 'hola@gmail.com',
       password: 'password1',
@@ -26,7 +26,7 @@ export class UserRepository {
       city: 'buenos aires',
     },
     {
-      id: 3,
+      id: '3',
       name: 'user3',
       email: 'hola@gmail.com',
       password: 'password1',
@@ -52,39 +52,39 @@ export class UserRepository {
     return usersPagination.map(this.omitPassword);
   }
 
-  async getById(id: number): Promise<Omit<IUser, 'password'> | undefined> {
-    const user = this.users.find((user) => user.id === id);
-    return user ? this.omitPassword(user) : undefined;
-  }
+  // async getById(id: number): Promise<Omit<IUser, 'password'> | undefined> {
+  //   const user = this.users.find((user) => user.id === id);
+  //   return user ? this.omitPassword(user) : undefined;
+  // }
 
-  async createUser(user: userDto): Promise<number> {
-    const id = this.users.length + 1;
-    const newUser = { id, ...user };
-    this.users.push(newUser);
-    return id;
-  }
+  // async createUser(user: userDto): Promise<number> {
+  //   const id = this.users.length + 1;
+  //   const newUser = { id, ...user };
+  //   this.users.push(newUser);
+  //   return id;
+  // }
 
-  async updateUser(
-    id: number,
-    updatedUser: Partial<Omit<IUser, 'id'>>,
-  ): Promise<number | string> {
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index === -1) return 'user not found';
+  // async updateUser(
+  //   id: number,
+  //   updatedUser: Partial<Omit<IUser, 'id'>>,
+  // ): Promise<number | string> {
+  //   const index = this.users.findIndex((user) => user.id === id);
+  //   if (index === -1) return 'user not found';
 
-    this.users[index] = { ...this.users[index], ...updatedUser };
-    return id;
-  }
+  //   this.users[index] = { ...this.users[index], ...updatedUser };
+  //   return id;
+  // }
 
-  async deleteUser(id: number): Promise<number> {
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index === -1) return undefined;
+  // async deleteUser(id: number): Promise<number> {
+  //   const index = this.users.findIndex((user) => user.id === id);
+  //   if (index === -1) return undefined;
 
-    this.users.splice(index, 1);
-    return id;
-  }
+  //   this.users.splice(index, 1);
+  //   return id;
+  // }
 
-  async findUserByEmail(email: string) {
-        const user = this.users.find(user => user.email === email);
-        return user;
-  }
+  // async findUserByEmail(email: string) {
+  //       const user = this.users.find(user => user.email === email);
+  //       return user;
+  // }
 }
