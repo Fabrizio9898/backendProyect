@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 
 @Controller('order')
@@ -11,7 +11,7 @@ export class OrderController {
   }
 
   @Get(':id')
-  getOrder(@Query('id') id: string) {
+  getOrder(@Query('id',ParseUUIDPipe) id: string) {
     this.orderService.getOrder(id);
   }
 }

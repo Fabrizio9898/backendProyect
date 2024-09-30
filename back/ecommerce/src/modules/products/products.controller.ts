@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
 import { ProductService } from "./products.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { CreateProductDto, UpdateProductDto } from "src/dto/ProductDto";
@@ -25,19 +25,19 @@ export class ProductController{
   }
 
   @Get(":id")
-  getProductById(@Param('id') id: string) {
+  getProductById(@Param('id',ParseUUIDPipe) id: string) {
       return this.productService.getProductById(id);
   }
 
   @Put(":id")
   @UseGuards(AuthGuard)
-  updateProduct(@Param('id') id: string, @Body() productData: UpdateProductDto) {
+  updateProduct(@Param('id',ParseUUIDPipe) id: string, @Body() productData: UpdateProductDto) {
       return this.productService.updateProduct(id, productData);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteProduct(@Param('id') id: string) {
+  deleteProduct(@Param('id',ParseUUIDPipe) id: string) {
       return this.productService.deleteProduct(id);
   }
 
