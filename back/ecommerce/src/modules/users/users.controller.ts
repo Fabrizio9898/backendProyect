@@ -12,10 +12,12 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.services';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { UpdateUserDto } from 'src/dto/UseDto';
+import { CreateUserDto, UpdateUserDto } from 'src/dto/UseDto';
+import { LoginUserDto } from 'src/dto/LoginUserDto';
 
 @Controller('users')
 export class UsersController {
@@ -30,10 +32,15 @@ export class UsersController {
   }
 
 
-  @Post()
+  @Post('singUp')
   @HttpCode(201)
-   createUser(@Body() userData: UpdateUserDto) {
+   createUser(@Body() userData: CreateUserDto) {
    return this.userService.createUser(userData)
+  }
+
+  @Get('singIn')
+  singIn(@Body() userData:LoginUserDto){
+    return this.userService.signIn(userData)
   }
 
   @Delete(':id')

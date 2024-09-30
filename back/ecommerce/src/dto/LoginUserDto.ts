@@ -8,7 +8,7 @@ export class LoginUserDto {
   
     @IsString()
     @IsNotEmpty()
-    @Length(6, 20)
+    @Length(8, 15)
     @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{6,20}$/, {
       message:
         'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',

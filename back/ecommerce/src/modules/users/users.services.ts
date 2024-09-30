@@ -1,37 +1,40 @@
-import { Injectable } from "@nestjs/common";
-import { UserRepository } from "./users.repository";
-import { CreateUserDto, UpdateUserDto } from "src/dto/UseDto";
+import { Injectable } from '@nestjs/common';
+import { UserRepository } from './users.repository';
+import { CreateUserDto, UpdateUserDto } from 'src/dto/UseDto';
+import { LoginUserDto } from 'src/dto/LoginUserDto';
 
 @Injectable()
-export class UsersService{
-
-    constructor(
-        private userRepository:UserRepository){}
-
-         getUsers(page: number, limit: number) {
-           this.userRepository.getUsers(page,limit)
-        }
+export class UsersService {
+ 
+  constructor(private userRepository: UserRepository) {}
 
 
 
-     getUserById(id:string){
-       return this.userRepository.getUserById(id)
-    }
+  signIn(userData: LoginUserDto) {
+    return this.userRepository.signIn(userData)
+  }
 
-    findUserByEmail(email:string){
-        return this.userRepository.findUserByEmail(email)
-    }
+  getUsers(page: number, limit: number) {
+    return this.userRepository.getUsers(page, limit);
+  }
 
-     createUser(user:CreateUserDto){
-        return this.userRepository.createUser(user)
-    }
+  getUserById(id: string) {
+    return this.userRepository.getUserById(id);
+  }
 
-     updateUser(id:string,userData:UpdateUserDto){
-       return this.userRepository.updateUser(id,userData)
-    }
+  findUserByEmail(email: string) {
+    return this.userRepository.findUserByEmail(email);
+  }
 
-     deleteUser(id:string){
-       return this.userRepository.deleteUser(id)
-    }
+  createUser(user: CreateUserDto) {
+    return this.userRepository.createUser(user);
+  }
 
+  updateUser(id: string, userData: UpdateUserDto) {
+    return this.userRepository.updateUser(id, userData);
+  }
+
+  deleteUser(id: string) {
+    return this.userRepository.deleteUser(id);
+  }
 }
