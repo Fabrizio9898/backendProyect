@@ -5,7 +5,9 @@ import { CreateProductDto, UpdateProductDto } from 'src/dto/ProductDto';
 @Injectable()
 export class ProductService {
   constructor(private productRepository: ProductRepository) {}
-
+uploadImage(id:string,imageUrl:string){
+  return this.productRepository.uploadImage(id,imageUrl)
+}
   
   addProducts() {
       return this.productRepository.addProducts();

@@ -8,6 +8,7 @@ import { CreateProductDto, UpdateProductDto } from 'src/dto/ProductDto';
 
 @Injectable()
 export class ProductRepository {
+  
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
@@ -15,16 +16,23 @@ export class ProductRepository {
     private categoryRepository: Repository<Category>,
   ) {}
 
+  async uploadImage(id:string,imageUrl) {
+    const product = await this.productRepository.findOne({ where: { id } });
+  if (!product) {
+    throw new Error('Product not found');
+  }
+  product.imgUrl = imageUrl;
+  return await this.productRepository.save(product);
+  }
+
+   
   async addProducts() {
 
     const categories=await this.categoryRepository.find()
-console.log('categories',categories);
 
   data?.map(async (cat)=>{
-    console.log('cat',cat);
     
 const category=categories.find((cate)=>cate.name==cat.category)
-console.log('category',category);
 
 const product=new Product()
 product.name=cat.name;
