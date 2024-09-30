@@ -1,41 +1,17 @@
 import { Injectable, Query } from '@nestjs/common';
 import IUser from '../../interfaces/user.interface';
-import userDto from 'src/dto/UseDto';
+import  { CreateUserDto, UpdateUserDto } from 'src/dto/UseDto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
-  private users: IUser[] = [
-    {
-      id: '1',
-      name: 'user1',
-      email: 'hola@gmail.com',
-      password: 'password1',
-      address: 'addres1',
-      phone: '123',
-      country: 'argentina',
-      city: 'buenos aires',
-    },
-    {
-      id: '2',
-      name: 'user2',
-      email: 'hola@gmail.com',
-      password: 'password1',
-      address: 'addres1',
-      phone: '123',
-      country: 'argentina',
-      city: 'buenos aires',
-    },
-    {
-      id: '3',
-      name: 'user3',
-      email: 'hola@gmail.com',
-      password: 'password1',
-      address: 'addres1',
-      phone: '123',
-      country: 'argentina',
-      city: 'buenos aires',
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
   public omitPassword(user: IUser): Omit<IUser, 'password'> {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -44,47 +20,54 @@ export class UserRepository {
   async getUsers(
     page: number,
     limit: number,
-  ): Promise<Omit<IUser, 'password'>[]> {
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const usersPagination = this.users.slice(start, end);
+  ): Promise<Omit<User, 'password'>[]> {
+    const [users, total] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
-    return usersPagination.map(this.omitPassword);
+    return users.map(
+      ({ password, ...userWithoutPassword }) => userWithoutPassword,
+    );
   }
 
-  // async getById(id: number): Promise<Omit<IUser, 'password'> | undefined> {
-  //   const user = this.users.find((user) => user.id === id);
-  //   return user ? this.omitPassword(user) : undefined;
-  // }
+  async getUserById(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: {
+        orders: true,
+      },
+    });
+    if (!user) return `user not found`;
+    const { password, ...userNoPassword } = user;
+    return userNoPassword;
+  }
 
-  // async createUser(user: userDto): Promise<number> {
-  //   const id = this.users.length + 1;
-  //   const newUser = { id, ...user };
-  //   this.users.push(newUser);
-  //   return id;
-  // }
 
-  // async updateUser(
-  //   id: number,
-  //   updatedUser: Partial<Omit<IUser, 'id'>>,
-  // ): Promise<number | string> {
-  //   const index = this.users.findIndex((user) => user.id === id);
-  //   if (index === -1) return 'user not found';
+  async createUser(user: CreateUserDto) {
+    const newUser=await this.userRepository.save(user)
+    const{password,...userNoPassword}=user;
+    return userNoPassword
+  }
 
-  //   this.users[index] = { ...this.users[index], ...updatedUser };
-  //   return id;
-  // }
+  async updateUser(
+    id: string,
+    user: UpdateUserDto,
+  ): Promise<Partial<User>>{
+   await this.userRepository.update(id,user)
+   const updatedUser=await this.userRepository.findOneBy({id})
+   const{password,...userNoPassword}=updatedUser
+   return userNoPassword
+  }
 
-  // async deleteUser(id: number): Promise<number> {
-  //   const index = this.users.findIndex((user) => user.id === id);
-  //   if (index === -1) return undefined;
+  async deleteUser(id: string): Promise<Partial<User>> {
+    const user=await this.userRepository.findOneBy({id})
+    this.userRepository.remove(user)
+    const {password,...userNoPassword}=user
+    return userNoPassword;
+  }
 
-  //   this.users.splice(index, 1);
-  //   return id;
-  // }
-
-   async findUserByEmail(email: string) {
-         const user = this.users.find(user => user.email === email);
-         return user;
-   }
+  async findUserByEmail(email: string) {
+    return await this.userRepository.findOne({ where: { email: email } });
+  }
 }

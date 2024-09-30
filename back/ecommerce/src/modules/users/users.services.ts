@@ -1,44 +1,37 @@
 import { Injectable } from "@nestjs/common";
 import { UserRepository } from "./users.repository";
-import userDto from "src/dto/UseDto";
-import IUser from "src/interfaces/user.interface";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/entities/user.entity";
-import { Repository } from "typeorm";
+import { CreateUserDto, UpdateUserDto } from "src/dto/UseDto";
 
 @Injectable()
 export class UsersService{
 
     constructor(
-        @InjectRepository(User)
-        private userRepository:Repository<User>){}
+        private userRepository:UserRepository){}
 
-        async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
-            const [users, total] = await this.userRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-            });
-    
-            return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+         getUsers(page: number, limit: number) {
+           this.userRepository.getUsers(page,limit)
         }
-    async getUserById(id:string){
-        const user=await this.userRepository.findOneBy({id})
-        return user;
+
+
+
+     getUserById(id:string){
+       return this.userRepository.getUserById(id)
     }
 
-    // async createUser(user:userDto):Promise<number>{
-    //     const createdUserId = await this.userRepository.createUser(user);
-    //     return createdUserId;
-    // }
+    findUserByEmail(email:string){
+        return this.userRepository.findUserByEmail(email)
+    }
 
-    // async updateUser(id:number,userData:userDto){
-    //     const updatedUserId=await this.userRepository.updateUser(id,userData)
-    //     return updatedUserId
-    // }
+     createUser(user:CreateUserDto){
+        return this.userRepository.createUser(user)
+    }
 
-    // async deleteUser(id:number){
-    //     const deletedUserId=await this.userRepository.deleteUser(id)
-    //     return deletedUserId
-    // }
+     updateUser(id:string,userData:UpdateUserDto){
+       return this.userRepository.updateUser(id,userData)
+    }
+
+     deleteUser(id:string){
+       return this.userRepository.deleteUser(id)
+    }
 
 }

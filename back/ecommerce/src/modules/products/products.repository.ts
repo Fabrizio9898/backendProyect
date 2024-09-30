@@ -18,9 +18,14 @@ export class ProductRepository {
   async addProducts() {
 
     const categories=await this.categoryRepository.find()
+console.log('categories',categories);
 
   data?.map(async (cat)=>{
-const category=categories.find((category)=>category.name==cat.name)
+    console.log('cat',cat);
+    
+const category=categories.find((cate)=>cate.name==cat.category)
+console.log('category',category);
+
 const product=new Product()
 product.name=cat.name;
 product.description=cat.description;

@@ -11,6 +11,7 @@ import { User } from "src/entities/user.entity";
     imports:[TypeOrmModule.forFeature([User])],
     controllers: [UsersController],
     providers: [UsersService,UserRepository,AuthGuard],
+    exports:[UserRepository]
 })
 
 // export class UsersModule implements NestModule{

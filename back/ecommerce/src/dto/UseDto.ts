@@ -1,41 +1,94 @@
-import { IsEmail } from "class-validator";
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Length,
+  Matches,
+} from 'class-validator';
 
-interface userDto {
-  email: string;
-
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 50)
   name: string;
 
-  password: string;
-
-  address: string;
-
-  phone: string;
-
-  country?: string | undefined;
-
-  city?: string | undefined;
-}
-
-export default userDto;
-
-
-export class CreateUserDto{
   @IsEmail()
+  @IsNotEmpty()
+  @Length(1, 50)
   email: string;
 
-  name: string;
-
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 20)
+  @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{6,20}$/, {
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  })
   password: string;
 
-  address: string;
+  @IsInt()
+  @IsNotEmpty()
+  phone: number;
 
-  phone: string;
+  @IsString()
+  @IsOptional()
+  @Length(1, 50)
+  country?: string;
 
-  country?: string | undefined;
+  @IsString()
+  @IsOptional()
+  address?: string;
 
-  city?: string | undefined;
+  @IsString()
+  @IsOptional()
+  @Length(1, 50)
+  city?: string;
 }
 
-export class UpdateUserDto{
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 50)
+  name: string;
+
+  @IsOptional()
+  @IsEmail()
+  @IsNotEmpty()
+  @Length(1, 50)
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 20)
+  @IsOptional()
+  @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{6,20}$/, {
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  })
+  password: string;
+
+  @IsOptional()
+  @IsInt()
+  @IsNotEmpty()
+  phone: number;
+
+  @IsOptional()
+  @IsString()
+  @IsOptional()
+  @Length(1, 50)
+  country?: string;
+
   
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  @Length(1, 50)
+  city?: string;
 }
