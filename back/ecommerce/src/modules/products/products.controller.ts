@@ -74,7 +74,8 @@ return this.productService.uploadImage(id,imageUrl.secure_url)
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard,RolesGuard)
+  @Roles(Role.Admin)
   updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() productData: UpdateProductDto,

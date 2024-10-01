@@ -19,45 +19,29 @@ import { validateSync } from 'class-validator';
 
 @Injectable()
 export class UserRepository {
-  
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly jwtService:JwtService
-    ) {}
+    private readonly jwtService: JwtService,
+  ) {}
 
-    public omitPassword(user: IUser): Omit<IUser, 'password'> {
+  public omitPassword(user: IUser): Omit<IUser, 'password'> {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
-  
- 
-  async changeAdmin(id:string) {
-    const user = await this.userRepository.findOneBy(
-       { id },
-    );
-
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-
-    user.isAdmin=true
-    await this.userRepository.save(user);
-    const { password, ...userNoPassword } = user;
-    return userNoPassword;
-  }
-  
-  
-  async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
-    
+  async getUsers(
+    page: number,
+    limit: number,
+  ): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
     const [users, total] = await this.userRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    
-    return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+    return users.map(
+      ({ password,isAdmin, ...userWithoutPassword }) => userWithoutPassword,
+    );
   }
 
   async getUserById(id: string) {
@@ -69,54 +53,53 @@ export class UserRepository {
     });
     if (!user)
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
-    const { password, ...userNoPassword } = user;
-    return userNoPassword;
+      const { password, isAdmin, ...userNoPassword } = user; // Omitir isAdmin
+      return userNoPassword;
   }
 
+  async signIn(userData: any) {
+    // Transformar userData a una instancia de LoginUserDto
+    const loginUserDto = plainToInstance(LoginUserDto, userData);
 
-  async signIn(userData:any) {
+    // Validar loginUserDto manualmente
+    const validationErrors = validateSync(loginUserDto);
 
-
- // Transformar userData a una instancia de LoginUserDto
- const loginUserDto = plainToInstance(LoginUserDto, userData);
-
- // Validar loginUserDto manualmente
- const validationErrors = validateSync(loginUserDto);
-
- if (validationErrors.length > 0) {
-   // Si hay errores de validación, lanzar excepción con "Credenciales inválidas"
-   throw new BadRequestException('Credenciales inválidas');
- }
-
+    if (validationErrors.length > 0) {
+      // Si hay errores de validación, lanzar excepción con "Credenciales inválidas"
+      throw new BadRequestException('Credenciales inválidas');
+    }
 
     const existingUser = await this.userRepository.findOne({
       where: { email: userData.email },
     });
-  
-   
+
     const isPasswordValid = existingUser
       ? await bcrypt.compare(userData.password, existingUser.password)
       : false;
-  
+
     if (!existingUser || !isPasswordValid) {
       throw new BadRequestException('Credenciales inválidas');
     }
 
     const roleOfUser = existingUser.isAdmin ? ['admin'] : ['user'];
 
-    const payload = { sub: existingUser.id, email: existingUser.email ,
-    roles:roleOfUser};  
+    const payload = {
+      sub: existingUser.id,
+      email: existingUser.email,
+      roles: roleOfUser,
+    };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
 
-
   async signUp(user: CreateUserDto) {
-    const existingUser = await this.userRepository.findOne({where:{
-      email:user.email
-    }});
+    const existingUser = await this.userRepository.findOne({
+      where: {
+        email: user.email,
+      },
+    });
     if (existingUser) {
       throw new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
     }
@@ -132,10 +115,10 @@ export class UserRepository {
         ...user,
         password: hashedPassword,
       });
-      const { password, ...userNoPassword } = newUser;
+      const { password,isAdmin, ...userNoPassword } = newUser;
       return userNoPassword;
     } catch (error) {
-      console.error('Error al crear el usuario:', error); 
+      console.error('Error al crear el usuario:', error);
       throw new HttpException(
         'Error al crear el usuario',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -152,7 +135,7 @@ export class UserRepository {
     try {
       await this.userRepository.update(id, user);
       const updatedUser = await this.userRepository.findOneBy({ id });
-      const { password, ...userNoPassword } = updatedUser;
+      const { password, isAdmin,...userNoPassword } = updatedUser;
       return userNoPassword;
     } catch (error) {
       throw new HttpException(
@@ -170,7 +153,7 @@ export class UserRepository {
 
     try {
       await this.userRepository.remove(user);
-      const { password, ...userNoPassword } = user;
+      const { password,isAdmin, ...userNoPassword } = user;
       return userNoPassword;
     } catch (error) {
       throw new HttpException(
@@ -188,6 +171,20 @@ export class UserRepository {
         HttpStatus.NOT_FOUND,
       );
     }
-    return user;
+    const { password,isAdmin, ...userNoPassword } = user;
+    return userNoPassword;
+  }
+
+  async changeAdmin(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.isAdmin = true;
+    await this.userRepository.save(user);
+    const { password, ...userNoPassword } = user;
+    return userNoPassword;
   }
 }

@@ -5,6 +5,7 @@ import { UserRepository } from "./users.repository";
 import { AuthGuard } from "src/guards/auth.guard";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
+import { requiresAuth } from "express-openid-connect";
 
 ;
 // import { LoggerMiddlere } from "src/middlewares/logger.middleware";
@@ -22,4 +23,8 @@ import { User } from "src/entities/user.entity";
 //     }
 // }
 
-export class UsersModule{}
+export class UsersModule implements NestModule{
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(requiresAuth()).forRoutes('users/auth0/protected')
+    }
+}

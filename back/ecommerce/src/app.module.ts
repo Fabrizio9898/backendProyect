@@ -39,5 +39,5 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor() {}
 }
