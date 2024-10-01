@@ -7,11 +7,11 @@ export class LoginUserDto {
     email: string;
   
     @IsString()
-    @IsNotEmpty()
-    @Length(8, 15)
-    @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{6,20}$/, {
-      message:
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-    })
-    password: string;
+  @IsNotEmpty()
+  @Length(8, 15)
+  @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{6,20}$/, {
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  })
+  password: string;
 }

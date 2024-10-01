@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   Query,
 } from '@nestjs/common';
 import IUser from '../../interfaces/user.interface';
@@ -12,23 +13,42 @@ import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/dto/LoginUserDto';
+import { JwtService } from '@nestjs/jwt';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
 
 @Injectable()
 export class UserRepository {
- 
+  
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+    private readonly jwtService:JwtService
+    ) {}
 
-  public omitPassword(user: IUser): Omit<IUser, 'password'> {
+    public omitPassword(user: IUser): Omit<IUser, 'password'> {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
-
+  
  
+  async changeAdmin(id:string) {
+    const user = await this.userRepository.findOneBy(
+       { id },
+    );
 
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.isAdmin=true
+    await this.userRepository.save(user);
+    const { password, ...userNoPassword } = user;
+    return userNoPassword;
+  }
+  
+  
   async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
     
     const [users, total] = await this.userRepository.findAndCount({
@@ -54,7 +74,21 @@ export class UserRepository {
   }
 
 
-  async signIn(userData: LoginUserDto) {
+  async signIn(userData:any) {
+
+
+ // Transformar userData a una instancia de LoginUserDto
+ const loginUserDto = plainToInstance(LoginUserDto, userData);
+
+ // Validar loginUserDto manualmente
+ const validationErrors = validateSync(loginUserDto);
+
+ if (validationErrors.length > 0) {
+   // Si hay errores de validación, lanzar excepción con "Credenciales inválidas"
+   throw new BadRequestException('Credenciales inválidas');
+ }
+
+
     const existingUser = await this.userRepository.findOne({
       where: { email: userData.email },
     });
@@ -67,13 +101,19 @@ export class UserRepository {
     if (!existingUser || !isPasswordValid) {
       throw new BadRequestException('Credenciales inválidas');
     }
-  
-  
-    return { message: 'Inicio de sesión exitoso', user: existingUser };
+
+    const roleOfUser = existingUser.isAdmin ? ['admin'] : ['user'];
+
+    const payload = { sub: existingUser.id, email: existingUser.email ,
+    roles:roleOfUser};  
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 
 
-  async createUser(user: CreateUserDto) {
+  async signUp(user: CreateUserDto) {
     const existingUser = await this.userRepository.findOne({where:{
       email:user.email
     }});
@@ -95,7 +135,7 @@ export class UserRepository {
       const { password, ...userNoPassword } = newUser;
       return userNoPassword;
     } catch (error) {
-      console.error('Error al crear el usuario:', error); // Log del error original
+      console.error('Error al crear el usuario:', error); 
       throw new HttpException(
         'Error al crear el usuario',
         HttpStatus.INTERNAL_SERVER_ERROR,

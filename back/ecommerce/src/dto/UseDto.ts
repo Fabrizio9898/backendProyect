@@ -6,7 +6,9 @@ import {
   IsInt,
   Length,
   Matches,
+  IsEmpty,
 } from 'class-validator';
+import { isEmpty } from 'rxjs';
 
 export class CreateUserDto {
   @IsString()
@@ -26,6 +28,10 @@ export class CreateUserDto {
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password: string;
+
+
+@IsEmpty()
+isAdmin:boolean
 
   @IsInt()
   @IsNotEmpty()

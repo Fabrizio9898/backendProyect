@@ -5,14 +5,15 @@ import { LoginUserDto } from 'src/dto/LoginUserDto';
 
 @Injectable()
 export class UsersService {
- 
   constructor(private userRepository: UserRepository) {}
-
-
-
-  signIn(userData: LoginUserDto) {
-    return this.userRepository.signIn(userData)
+  
+  
+  
+  
+  changeAdmin(id:string) {
+    return this.userRepository.changeAdmin(id)
   }
+ 
 
   getUsers(page: number, limit: number) {
     return this.userRepository.getUsers(page, limit);
@@ -26,9 +27,7 @@ export class UsersService {
     return this.userRepository.findUserByEmail(email);
   }
 
-  createUser(user: CreateUserDto) {
-    return this.userRepository.createUser(user);
-  }
+  
 
   updateUser(id: string, userData: UpdateUserDto) {
     return this.userRepository.updateUser(id, userData);

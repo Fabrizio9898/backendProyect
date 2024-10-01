@@ -21,6 +21,9 @@ import { CreateProductDto, UpdateProductDto } from 'src/dto/ProductDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CLoudinaryService } from 'src/common/cloudinary.service';
 import { MinSizeValidator } from 'src/pipes/MinSizeValidator.pipe';
+import { Roles } from 'src/decorator/roles.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Controller('products')
 export class ProductController {
@@ -38,6 +41,7 @@ export class ProductController {
 
  
 @Post('upload_image/:id')
+@UseGuards(AuthGuard)
 @UseInterceptors(FileInterceptor('image'))
 @UsePipes(MinSizeValidator)
 async uploadImage(@Param('id', ParseUUIDPipe) id: string, @UploadedFile(
@@ -58,7 +62,8 @@ return this.productService.uploadImage(id,imageUrl.secure_url)
 
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard,RolesGuard)
+  @Roles(Role.Admin)
   createProduct(@Body() productData: CreateProductDto) {
     return this.productService.createProduct(productData);
   }

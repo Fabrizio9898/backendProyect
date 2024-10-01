@@ -1,36 +1,47 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { Request } from "express";
-import { Observable } from "rxjs";
+
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig({ path: '.env.development' });
+
 
 @Injectable()
-export class AuthGuard implements CanActivate{
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-        const request=context.switchToHttp().getRequest()
-        return validateRequest(request)
-    }
-}
+export class AuthGuard implements CanActivate {
+  constructor(private jwtService: JwtService) {}
 
-function validateRequest(request: Request): boolean | Promise<boolean> | Observable<boolean> {
-    const authorizationHeader = request.headers['authorization'];
-
-    // Verificar que el header Authorization existe
-    if (!authorizationHeader) {
-      throw new HttpException('Authorization header is missing', HttpStatus.UNAUTHORIZED);
-    }
-
-    // Verificar que el header tiene la estructura correcta
-    const [scheme, credentials] = authorizationHeader.split(' ');
-
-    if (scheme !== 'Basic' || !credentials) {
-      throw new HttpException('Invalid authorization format', HttpStatus.UNAUTHORIZED);
-    }
-
-    const [email, password] = Buffer.from(credentials, 'base64').toString().split(':');
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    console.log(request,'request');
     
-    // Asegurarse de que tanto email como password están presentes
-    if (!email || !password) {
-      throw new HttpException('Email and password must be provided', HttpStatus.UNAUTHORIZED);
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException();
     }
+    try {
+      const payload = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: process.env.JWT_SECRET
+        }
+      );
+     
+      request['user'] = payload;
+    } catch {
+      throw new UnauthorizedException();
+    }
+    return true;
+  }
 
-    return true; 
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    console.log('type y',type);
+    
+    return type === 'Bearer' ? token : undefined;
+  }
 }
