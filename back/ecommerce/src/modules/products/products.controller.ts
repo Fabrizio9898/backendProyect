@@ -24,7 +24,11 @@ import { MinSizeValidator } from 'src/pipes/MinSizeValidator.pipe';
 import { Roles } from 'src/decorator/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+
+
+@ApiTags('Products')
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService,private readonly cloudinaryService:CLoudinaryService) {}

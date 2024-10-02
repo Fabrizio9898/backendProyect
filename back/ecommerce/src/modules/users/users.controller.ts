@@ -13,12 +13,15 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.services';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { UpdateUserDto } from 'src/dto/UseDto';
 import { Request } from 'express';
 import { Roles } from 'src/decorator/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from 'src/dto/UpdateUserDto';
 
+
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
@@ -38,6 +41,8 @@ export class UsersController {
   }
 
   @Put('changeAdmin/:id')
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard,RolesGuard)
   changeAdmin(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.changeAdmin(id);
   }
@@ -50,6 +55,8 @@ export class UsersController {
     return this.userService.deleteUser(id);
   }
 
+
+  @ApiBearerAuth()
   @Get(':id')
   @UseGuards(AuthGuard)
   @HttpCode(200)

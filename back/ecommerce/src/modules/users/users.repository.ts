@@ -7,15 +7,16 @@ import {
   Query,
 } from '@nestjs/common';
 import IUser from '../../interfaces/user.interface';
-import { CreateUserDto, UpdateUserDto } from 'src/dto/UseDto';
+import { CreateUserDto } from 'src/dto/UseDto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/dto/LoginUserDto';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import { User } from 'src/entities/user.entity';
+import { UpdateUserDto } from 'src/dto/UpdateUserDto';
 
 @Injectable()
 export class UserRepository {
@@ -57,17 +58,9 @@ export class UserRepository {
       return userNoPassword;
   }
 
-  async signIn(userData: any) {
-    // Transformar userData a una instancia de LoginUserDto
-    const loginUserDto = plainToInstance(LoginUserDto, userData);
-
-    // Validar loginUserDto manualmente
-    const validationErrors = validateSync(loginUserDto);
-
-    if (validationErrors.length > 0) {
-      // Si hay errores de validación, lanzar excepción con "Credenciales inválidas"
-      throw new BadRequestException('Credenciales inválidas');
-    }
+  async signIn(userData: LoginUserDto) {
+    console.log('userdata',userData);
+ 
 
     const existingUser = await this.userRepository.findOne({
       where: { email: userData.email },
@@ -101,7 +94,7 @@ export class UserRepository {
       },
     });
     if (existingUser) {
-      throw new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
+      throw new HttpException('Email en uso', HttpStatus.CONFLICT);
     }
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
