@@ -41,7 +41,7 @@ export class UserRepository {
     });
 
     return users.map(
-      ({ password,isAdmin, ...userWithoutPassword }) => userWithoutPassword,
+      ({ password, isAdmin, ...userWithoutPassword }) => userWithoutPassword,
     );
   }
 
@@ -54,13 +54,12 @@ export class UserRepository {
     });
     if (!user)
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
-      const { password, isAdmin, ...userNoPassword } = user; // Omitir isAdmin
-      return userNoPassword;
+    const { password, isAdmin, ...userNoPassword } = user; // Omitir isAdmin
+    return userNoPassword;
   }
 
   async signIn(userData: LoginUserDto) {
-    console.log('userdata',userData);
- 
+    console.log('userdata', userData);
 
     const existingUser = await this.userRepository.findOne({
       where: { email: userData.email },
@@ -87,7 +86,9 @@ export class UserRepository {
     };
   }
 
-  async signUp(user: CreateUserDto) {
+  async signUp(
+    user: CreateUserDto,
+  ): Promise<Omit<User, 'password' | 'isAdmin'>> {
     const existingUser = await this.userRepository.findOne({
       where: {
         email: user.email,
@@ -102,13 +103,12 @@ export class UserRepository {
     if (!hashedPassword) {
       throw new BadRequestException('Password could not be hashed');
     }
-
     try {
       const newUser = await this.userRepository.save({
         ...user,
         password: hashedPassword,
       });
-      const { password,isAdmin, ...userNoPassword } = newUser;
+      const { password, isAdmin, ...userNoPassword } = newUser;
       return userNoPassword;
     } catch (error) {
       console.error('Error al crear el usuario:', error);
@@ -128,7 +128,7 @@ export class UserRepository {
     try {
       await this.userRepository.update(id, user);
       const updatedUser = await this.userRepository.findOneBy({ id });
-      const { password, isAdmin,...userNoPassword } = updatedUser;
+      const { password, isAdmin, ...userNoPassword } = updatedUser;
       return userNoPassword;
     } catch (error) {
       throw new HttpException(
@@ -146,7 +146,7 @@ export class UserRepository {
 
     try {
       await this.userRepository.remove(user);
-      const { password,isAdmin, ...userNoPassword } = user;
+      const { password, isAdmin, ...userNoPassword } = user;
       return userNoPassword;
     } catch (error) {
       throw new HttpException(
@@ -164,7 +164,7 @@ export class UserRepository {
         HttpStatus.NOT_FOUND,
       );
     }
-    const { password,isAdmin, ...userNoPassword } = user;
+    const { password, isAdmin, ...userNoPassword } = user;
     return userNoPassword;
   }
 

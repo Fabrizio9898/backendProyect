@@ -3,7 +3,6 @@ import { UsersModule } from './modules/users/users.module';
 import { ProductsModule } from './modules/products/products.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import typeOrmConfig from './config/typeorm.config';

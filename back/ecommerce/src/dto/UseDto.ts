@@ -18,6 +18,9 @@ export class CreateUserDto {
     description: 'Nombre del usuario. Debe tener entre 3 y 80 caracteres.',
     example: 'John Doe',
   })
+  @Matches(/^(?=.*[A-Z])(?=.*[a-z])./,{
+    message:'username must contain at least one uppercase letter and one lowercase letter  '
+  })
   name: string;
 
   @IsEmail()
