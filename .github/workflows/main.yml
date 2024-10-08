@@ -12,21 +12,29 @@ jobs:
       - 
           name: Checkout
           uses: actions/checkout@v4
+
       - 
-          name: Login to Dcoker hub
+          name: Login to Docker Hub
           uses: docker/login-action@v3
           with:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-          name: Set up Docker Buils
+
+      - 
+          name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
+
+      - 
+          name: Install dependencies
+          run: |
+            cd back/ecommerce
+            npm install
+
       -   
-          name: Build and push
+          name: Build and push Docker image
           uses: docker/build-push-action@v5
           with: 
-            context: .  
-            file: ./back/ecommerce/Dockerfile
+            context: ./back/ecommerce  # Cambia el contexto a la carpeta correcta
+            file: ./back/ecommerce/Dockerfile  # Ruta del Dockerfile dentro de la carpeta ecommerce
             push: true
-            tags: fabrizio/backendproyect:latest
-        
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/backendproyect:latest
