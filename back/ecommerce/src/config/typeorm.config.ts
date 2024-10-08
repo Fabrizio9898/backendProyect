@@ -3,6 +3,8 @@ import { config as dotenvConfig } from 'dotenv';
 import { registerAs } from '@nestjs/config';
 dotenvConfig({ path: '.env.development' });
 
+// const isDocker = !!process.env.DOCKER; // Establecer esta variable en Docker
+
 const config = {
   type: 'postgres',
   host: process.env.DB_HOST,

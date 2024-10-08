@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build: ./
+    image: fabrizio9898/backendproyect
     ports:
       - '3001:3000'
     env_file:
